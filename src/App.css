@@ -19,6 +19,8 @@ p {
 
 .app {
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .header {
@@ -53,7 +55,92 @@ p {
 }
 
 .content {
-  max-width: 100%;  /* меняем с 1200px на 100% */
+  flex: 1; /* Это заставляет контент растягиваться, прижимая футер к низу */
+  max-width: 100%;
   margin: 0;
   padding: 0;
+  width: 100%;
+}
+
+/* Футер */
+.footer {
+  background-color: #2a2a2a;
+  color: #fff;
+  margin-top: 60px;
+  padding: 20px 0 20px;
+  width: 100%;
+}
+
+.footer-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 40px;
+}
+
+.footer-column h4 {
+  color: #fff;
+  font-size: 18px;
+  margin: 0 0 20px 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.footer-column p {
+  color: #aaa;
+  line-height: 1.6;
+  margin: 0 0 10px 0;
+  font-size: 14px;
+}
+
+.footer-column ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-column ul li {
+  margin-bottom: 10px;
+}
+
+.footer-column ul li a {
+  color: #aaa;
+  text-decoration: none;
+  font-size: 14px;
+  transition: color 0.2s;
+}
+
+.footer-column ul li a:hover {
+  color: #fff;
+}
+
+.footer-bottom {
+  max-width: 1200px;
+  margin: 40px auto 0;
+  padding: 20px 20px 0;
+  border-top: 1px solid #444;
+  text-align: center;
+}
+
+.footer-bottom p {
+  color: #888;
+  font-size: 13px;
+  margin: 0;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .footer-content {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer-content {
+    grid-template-columns: 1fr;
+    gap: 30px;
+  }
 }
