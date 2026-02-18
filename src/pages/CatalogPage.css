@@ -1,0 +1,130 @@
+/* CatalogPage.css - только hero секция без отступов */
+.hero {
+  background-image: url('C:\\Users\\artza\\OneDrive\\Рабочий стол\\спо\\проект 1\\flower-shop-frontend\\src\\hero.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  position: relative;
+  left: 0;
+  right: 0;
+}
+
+.hero-content {
+  position: absolute;
+  top: 80%;
+  left: 51%;
+  transform: translate(-50%, -50%);
+  max-width: 30%;
+  margin: 0;
+  padding: 0;
+  color: rgb(14, 13, 13);
+}
+
+/* Большие десктопы (4K и выше) */
+@media (min-width: 1920px) {
+  .hero-content {
+    top: 82%;
+    left: 50%;
+    max-width: 28%;
+  }
+}
+
+/* Десктопы средние */
+@media (min-width: 1280px) and (max-width: 1919px) {
+  .hero-content {
+    top: 80%;
+    left: 51%;
+    max-width: 30%;
+  }
+}
+
+/* Маленькие десктопы и большие планшеты */
+@media (min-width: 1025px) and (max-width: 1279px) {
+  .hero-content {
+    top: 78%;
+    left: 52%;
+    max-width: 35%;
+  }
+}
+
+/* Планшеты (горизонтальные и вертикальные) */
+@media (max-width: 1024px) and (min-width: 768px) {
+  .hero-content {
+    top: 73%;
+    left: 53%;
+    max-width: 50%;
+  }
+}
+
+/* Большие телефоны */
+@media (max-width: 767px) and (min-width: 481px) {
+  .hero-content {
+    top: 73%;
+    left: 50%;
+    max-width: 70%;
+  }
+}
+
+/* Маленькие телефоны */
+@media (max-width: 480px) {
+  .hero-content {
+    top: 65%;
+    left: 50%;
+    max-width: 85%;
+    font-size: 0.9rem;
+  }
+}
+
+/* Очень маленькие телефоны */
+@media (max-width: 320px) {
+  .hero-content {
+    top: 60%;
+    left: 50%;
+    font-size: 0.8rem;
+  }
+}
+
+/* ВСЁ ЧТО НИЖЕ - ДЛЯ КАТАЛОГА */
+.catalog-page {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.filters {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin: 30px 0 20px;
+}
+
+.filter-btn {
+  padding: 12px 30px;
+  border: 2px solid #f1bbed;
+  background: transparent;
+  color: #f1bbed;
+  border-radius: 30px;
+  cursor: pointer;
+}
+
+.filter-btn.active {
+  background: #f1bbed;
+  color: white;
+}
+
+.products-count {
+  text-align: center;
+  margin: 10px 0 20px;
+  color: #666;
+}
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+  padding: 20px 0;
+}

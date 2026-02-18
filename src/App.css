@@ -1,0 +1,59 @@
+/* Добавьте в самый верх CSS */
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  max-width: 100%; /* Временно, для поиска проблемы */
+}
+
+
+p {
+  margin: 0;
+  padding: 0;
+}
+
+.app {
+  min-height: 100vh;
+}
+
+.header {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #ddd;
+}
+
+.nav {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 20px;
+  justify-content: center;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+  padding: 5px 10px;
+}
+
+.nav-link-9 {
+  grid-column: span 9;
+}
+
+.nav-link-1 {
+  grid-column: span 1;
+}
+
+.nav-link:hover {
+  color: #007bff;
+}
+
+.content {
+  max-width: 100%;  /* меняем с 1200px на 100% */
+  margin: 0;
+  padding: 0;
+}
