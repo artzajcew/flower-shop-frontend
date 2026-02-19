@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
-import { CartProvider } from './context/CartContext'; // Добавьте импорт
+import { CartProvider } from './context/CartContext';
 import CatalogPage from './pages/CatalogPage';
 import CartPage from './pages/CartPage';
 import LoginPage from './pages/LoginPage';
@@ -13,7 +13,7 @@ import './App.css';
 function App() {
   return (
     <BrowserRouter>
-      <CartProvider> {/* Оборачиваем все в CartProvider */}
+      <CartProvider>
         <div className="app">
           <header className='header'>
             <nav className='nav'>
@@ -73,7 +73,7 @@ function App() {
                   <li>morethanflowers@gmail.ru</li>
                   <li>г. Москва, ул. Цветочная, 1</li>
                   <li>
-                    <a href="/">Instagram</a> | <a href="/">VK</a>
+                    <a href="/">Instagram</a> | <a href="/">Telegram</a>
                   </li>
                 </ul>
               </div>

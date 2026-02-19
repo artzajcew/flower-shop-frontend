@@ -26,7 +26,6 @@ function RegisterPage() {
     setError('');
     setSuccess('');
 
-    // Проверки
     if (!formData.name || !formData.email || !formData.password || !formData.confirmPassword) {
       setError('Заполните все поля');
       return;

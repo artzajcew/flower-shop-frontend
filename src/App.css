@@ -21,6 +21,9 @@ p {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  margin: 0;
+  padding: 0;
+  background-color: transparent;
 }
 
 .header {
@@ -51,7 +54,7 @@ p {
 }
 
 .nav-link:hover {
-  color: #007bff;
+  color: #e456b2;
 }
 
 .content {
@@ -60,13 +63,13 @@ p {
   margin: 0;
   padding: 0;
   width: 100%;
+  background-color: transparent;
 }
 
 /* Футер */
 .footer {
-  background-color: #2a2a2a;
+  background-color: #393336;
   color: #fff;
-  margin-top: 60px;
   padding: 20px 0 20px;
   width: 100%;
 }

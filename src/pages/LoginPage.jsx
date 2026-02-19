@@ -30,6 +30,7 @@ function LoginPage() {
   };
 
   return (
+    <div className='login-page'>
     <div className="login-container">
       <form className="login-form" onSubmit={handleSubmit}>
         <h2>Вход в магазин</h2>
@@ -64,6 +65,7 @@ function LoginPage() {
           Нет аккаунта? <a href="/register">Зарегистрироваться</a>
         </p>
       </form>
+    </div>
     </div>
   );
 }

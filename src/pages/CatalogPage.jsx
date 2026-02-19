@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import ProductCard from '../components/ProductCard/ProductCard.jsx';
-import { flowers } from '../data/flowers'; // Импортируем данные
+import { flowers } from '../data/flowers';
 import './CatalogPage.css';
 
 function CatalogPage() {
@@ -10,7 +10,7 @@ function CatalogPage() {
     if (selectedCategory === 'все') {
       return flowers;
     }
-    return flowers.filter(flower => 
+    return flowers.filter(flower =>
       flower.category.toLowerCase() === selectedCategory.toLowerCase()
     );
   };
@@ -75,8 +75,7 @@ function CatalogPage() {
         </div>
       
        </div>
-
-        {/* Новая секция с тремя колонками */}
+       
         <div className="mission-section">
           <div className="mission-column mission-title">
             <h2>OUR MISSION</h2>
