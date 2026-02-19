@@ -1,5 +1,5 @@
-import React from 'react';
-import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { BrowserRouter, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom'; // Добавлен useNavigate
 import { CartProvider } from './context/CartContext';
 import CatalogPage from './pages/CatalogPage';
 import CartPage from './pages/CartPage';
@@ -7,16 +7,33 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import AdminPage from './pages/AdminPage';
 import CheckoutPage from './pages/CheckoutPage';
+import ProductPage from './pages/ProductPage';
+import ProductModal from './components/ProductModal/ProductModal';
 import './App.css';
 
+function AppContent() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [modalProduct, setModalProduct] = useState(null);
+  
+  // Проверяем, нужно ли показать модалку
+  React.useEffect(() => {
+    if (location.state?.modal && location.state?.product) {
+      setModalProduct(location.state.product);
+    } else {
+      setModalProduct(null);
+    }
+  }, [location]);
 
-function App() {
+  const handleCloseModal = () => {
+    setModalProduct(null);
+    // Убираем state из URL
+    navigate(location.pathname, { replace: true });
+  };
   return (
-    <BrowserRouter>
-      <CartProvider>
-        <div className="app">
-          <header className='header'>
-            <nav className='nav'>
+    <div className="app">
+      <header className='header'>
+        <nav className='nav'>
               <Link to='/' className='nav-link nav-link-9'>More Than Flowers</Link>
               <Link to='/' className='nav-link nav-link-1'>Каталог</Link>
               <Link to='/cart' className='nav-link nav-link-1'>
@@ -24,20 +41,21 @@ function App() {
               </Link>
               <Link to='/login' className='nav-link nav-link-1'>Вход</Link>
             </nav>
-          </header>
+      </header>
 
-          <main className='content'>
-            <Routes>
-              <Route path='/' element={<CatalogPage />} />
-              <Route path='/cart' element={<CartPage />} />
-              <Route path='/login' element={<LoginPage />} />
-              <Route path='/register' element={<RegisterPage />} />
-              <Route path='/admin' element={<AdminPage />} />
-              <Route path="/checkout" element={<CheckoutPage />} />
-            </Routes>
-          </main>
+      <main className='content'>
+        <Routes>
+          <Route path='/' element={<CatalogPage />} />
+          <Route path='/cart' element={<CartPage />} />
+          <Route path='/login' element={<LoginPage />} />
+          <Route path='/register' element={<RegisterPage />} />
+          <Route path='/admin' element={<AdminPage />} />
+          <Route path='/checkout' element={<CheckoutPage />} />
+          <Route path='/product/:id' element={<ProductPage />} />
+        </Routes>
+      </main>
 
-          <footer className="footer">
+      <footer className="footer">
             <div className="footer-content">
               <div className="footer-column">
                 <h4>More Than Flowers</h4>
@@ -83,7 +101,23 @@ function App() {
               <p>© 2026 More Than Flowers. Все права защищены.</p>
             </div>
           </footer>
-        </div>
+
+      {/* Модальное окно */}
+      {modalProduct && (
+        <ProductModal 
+          product={modalProduct}
+          onClose={handleCloseModal}
+        />
+      )}
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <BrowserRouter>
+      <CartProvider>
+        <AppContent />
       </CartProvider>
     </BrowserRouter>
   );

@@ -70,12 +70,13 @@ function CatalogPage() {
               price={flower.price}
               category={flower.category}
               image={flower.image}
+              description={flower.description} 
             />
           ))}
         </div>
       
        </div>
-       
+
         <div className="mission-section">
           <div className="mission-column mission-title">
             <h2>OUR MISSION</h2>
