@@ -40,6 +40,7 @@ function AppContent() {
                 Корзина
               </Link>
               <Link to='/login' className='nav-link nav-link-1'>Вход</Link>
+              <Link to='/admin' className='nav-link nav-link-1'>Админ</Link>
             </nav>
       </header>
 
