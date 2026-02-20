@@ -10,6 +10,9 @@ import CheckoutPage from './pages/CheckoutPage';
 import ProductPage from './pages/ProductPage';
 import ProductModal from './components/ProductModal/ProductModal';
 import './App.css';
+import { OrderProvider } from './context/OrderContext';
+import OrderPage from './pages/OrderPage';
+import MyOrdersPage from './pages/MyOrdersPage';
 
 function AppContent() {
   const location = useLocation();
@@ -40,6 +43,7 @@ function AppContent() {
                 Корзина
               </Link>
               <Link to='/login' className='nav-link nav-link-1'>Вход</Link>
+              <Link to='/my-orders' className='nav-link nav-link-1'>Заказы</Link>
               <Link to='/admin' className='nav-link nav-link-1'>Админ</Link>
             </nav>
       </header>
@@ -53,6 +57,8 @@ function AppContent() {
           <Route path='/admin' element={<AdminPage />} />
           <Route path='/checkout' element={<CheckoutPage />} />
           <Route path='/product/:id' element={<ProductPage />} />
+          <Route path="/order/:id" element={<OrderPage />} />
+          <Route path="/my-orders" element={<MyOrdersPage />} />
         </Routes>
       </main>
 
@@ -118,7 +124,9 @@ function App() {
   return (
     <BrowserRouter>
       <CartProvider>
-        <AppContent />
+        <OrderProvider>
+          <AppContent />
+        </OrderProvider>
       </CartProvider>
     </BrowserRouter>
   );

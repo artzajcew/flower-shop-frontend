@@ -5,6 +5,10 @@ const CartContext = createContext();
 export function CartProvider({ children }) {
   const [cart, setCart] = useState([]);
 
+  const clearCart = () => {
+  setCart([]);
+};
+
   const addToCart = (product) => {
     setCart(prevCart => {
       // Проверяем, есть ли уже такой товар в корзине
@@ -57,7 +61,8 @@ export function CartProvider({ children }) {
       removeFromCart, 
       updateQuantity,
       totalPrice,
-      totalItems 
+      totalItems,
+      clearCart
     }}>
       {children}
     </CartContext.Provider>

@@ -29,7 +29,7 @@ function CatalogPage() {
     <>
       <section className="hero">
         <div className="hero-content">
-          <p>Наша команда флористов создаст цветочную композицию специально по вашему заказу...</p>
+          <p>Наша команда флористов создаст цветочную композицию специально по вашему заказу, используя цветы высочайшего качества и профессионализм.</p>
         </div>
       </section>
       
@@ -39,7 +39,30 @@ function CatalogPage() {
         </div>
 
         <div className="filters">
-          {/* фильтры */}
+          <button 
+            className={`filter-btn ${selectedCategory === 'все' ? 'active' : ''}`}
+            onClick={() => setSelectedCategory('все')}
+          >
+            Все
+          </button>
+          <button 
+            className={`filter-btn ${selectedCategory === 'люкс' ? 'active' : ''}`}
+            onClick={() => setSelectedCategory('люкс')}
+          >
+            Люкс
+          </button>
+          <button 
+            className={`filter-btn ${selectedCategory === 'авторский' ? 'active' : ''}`}
+            onClick={() => setSelectedCategory('авторский')}
+          >
+            Авторские
+          </button>
+          <button 
+            className={`filter-btn ${selectedCategory === 'сборный' ? 'active' : ''}`}
+            onClick={() => setSelectedCategory('сборный')}
+          >
+            Сборные
+          </button>
         </div>
 
         <div className="products-count">
@@ -58,6 +81,27 @@ function CatalogPage() {
               description={flower.description}
             />
           ))}
+        </div>
+
+        {/* Миссия секция */}
+        <div className="mission-section">
+          <div className="mission-column mission-title">
+            <h2>OUR MISSION</h2>
+          </div>
+          <div className="mission-column mission-text">
+            <p>
+              Мы создаем букеты, которые дарят эмоции. Каждый цветок отбирается вручную, 
+              каждая композиция продумывается до мелочей. Наша цель — делать ваши особенные 
+              моменты еще прекраснее с помощью языка цветов.
+            </p>
+          </div>
+          <div className="mission-column mission-text">
+            <p>
+              Более 10 лет мы радуем клиентов свежими цветами и авторским подходом. 
+              Работаем только с проверенными поставщиками, гарантируем свежесть букетов 
+              до 7 дней. Индивидуальный подход к каждому заказу.
+            </p>
+          </div>
         </div>
       </div>
     </>

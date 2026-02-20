@@ -1,6 +1,5 @@
-/* CatalogPage.css - только hero секция без отступов */
 .hero {
-  background-image: url('C:\\Users\\artza\\OneDrive\\Рабочий стол\\спо\\проект 1\\flower-shop-frontend\\src\\hero.png');
+  background-image: url('../hero.png');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -58,9 +57,10 @@
 }
 
 .catalog-page {
-  padding: 20px;
   max-width: 1200px;
   margin: 0 auto;
+  padding: 20px;
+  width: 100%;
 }
 
 .filters {
@@ -84,17 +84,33 @@
   color: white;
 }
 
-.products-count {
-  text-align: center;
-  margin: 10px 0 20px;
-  color: #666;
-}
-
 .products-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 24px;
-  padding: 20px 0;
+  gap: 25px;
+  justify-content: center;
+  align-items: stretch;
+  width: 100%;
+  margin: 20px 0;
+}
+
+/* Адаптивность */
+@media (max-width: 1200px) {
+  .products-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 900px) {
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .products-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .catalog-title {

@@ -1,22 +1,25 @@
 import React, { useState } from 'react';
 import { useCart } from '../context/CartContext';
+import { useOrders } from '../context/OrderContext';
 import { useNavigate } from 'react-router-dom';
 import './CheckoutPage.css';
 
 function CheckoutPage() {
-  const { cart, totalPrice } = useCart();
+  const { cart, totalPrice, clearCart } = useCart();
+  const { createOrder } = useOrders();
   const navigate = useNavigate();
   
   const [formData, setFormData] = useState({
     fullName: '',
+    email: '',
     phone: '',
     deliveryMethod: 'pickup',
-    address: ''
+    address: '',
+    paymentMethod: 'card' // card, cash
   });
 
   const [errors, setErrors] = useState({});
 
-  // Проверяем корзину после всех хуков
   if (cart.length === 0) {
     navigate('/cart');
     return null;
@@ -35,6 +38,12 @@ function CheckoutPage() {
     
     if (!formData.fullName.trim()) {
       newErrors.fullName = 'Введите ФИО';
+    }
+    
+    if (!formData.email.trim()) {
+      newErrors.email = 'Введите email';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'Введите корректный email';
     }
     
     if (!formData.phone.trim()) {
@@ -59,8 +68,18 @@ function CheckoutPage() {
       return;
     }
     
-    alert('Заказ оформлен! Спасибо за покупку!');
-    navigate('/');
+    // Создаем заказ
+    const orderId = createOrder({
+      ...formData,
+      items: cart,
+      total: totalPrice
+    });
+    
+    // Очищаем корзину
+    clearCart();
+    
+    // Переходим на страницу заказа
+    navigate(`/order/${orderId}`);
   };
 
   return (
@@ -81,6 +100,19 @@ function CheckoutPage() {
                 className={errors.fullName ? 'error' : ''}
               />
               {errors.fullName && <span className="error-message">{errors.fullName}</span>}
+            </div>
+
+            <div className="form-group">
+              <label>Email *</label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="ivan@example.com"
+                className={errors.email ? 'error' : ''}
+              />
+              {errors.email && <span className="error-message">{errors.email}</span>}
             </div>
 
             <div className="form-group">
@@ -136,6 +168,32 @@ function CheckoutPage() {
                 {errors.address && <span className="error-message">{errors.address}</span>}
               </div>
             )}
+
+            <div className="form-group">
+              <label>Способ оплаты</label>
+              <div className="payment-options">
+                <label className="radio-label">
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value="card"
+                    checked={formData.paymentMethod === 'card'}
+                    onChange={handleChange}
+                  />
+                  Картой онлайн
+                </label>
+                <label className="radio-label">
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value="cash"
+                    checked={formData.paymentMethod === 'cash'}
+                    onChange={handleChange}
+                  />
+                  Наличными при получении
+                </label>
+              </div>
+            </div>
 
             <button type="submit" className="pay-btn">
               Оплатить {totalPrice} ₽
