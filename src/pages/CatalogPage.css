@@ -72,16 +72,20 @@
 
 .filter-btn {
   padding: 12px 30px;
-  border: 2px solid #f1bbed;
+  border: 2px solid #e581de;
   background: transparent;
-  color: #f1bbed;
+  color: #ef9bd1;
   border-radius: 30px;
   cursor: pointer;
 }
 
 .filter-btn.active {
-  background: #f1bbed;
+  background: #f9a2f3;
   color: white;
+}
+
+.products-count {
+    text-align: center;
 }
 
 .products-grid {

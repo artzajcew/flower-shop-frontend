@@ -5,10 +5,14 @@
   overflow: hidden;
   transition: all 0.3s ease;
   background: white;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 8px rgba(241, 3, 222, 0.1);
   width: 100%;
   max-width: 350px;
   margin: 0 auto;
+}
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 2px 8px rgba(241, 3, 222, 0.3);
 }
 
 .product-image {
@@ -28,34 +32,42 @@
 .product-category {
   display: inline-block;
   padding: 4px 8px;
-  background: #f8f9fa;
+  background-color: #f166e6 !important;
   border-radius: 4px;
   font-size: 12px;
-  color: #666;
+  color: #f5f1f1;
   margin-bottom: 8px;
 }
 
 .product-name {
   margin: 0 0 8px;
   font-size: 18px;
-  color: #333;
+  color: #29272a;
   font-weight: 600;
+  height: 75px; /* Фиксированная высота для 3 строк (18px * 1.4 * 3 = 75.6px) */
+  overflow: hidden; /* Прячем текст, который не влез */
+  display: -webkit-box;
+  -webkit-line-clamp: 3; /* Ограничиваем до 3 строк */
+  -webkit-box-orient: vertical;
+  text-overflow: ellipsis;
 }
 
 .product-price {
   margin: 0 0 15px;
   font-size: 20px;
   font-weight: bold;
-  color: #007bff;
+  color: #259b2b !important;
 }
 
 .add-to-cart-btn {
   width: 100%;
   padding: 10px;
-  background-color: #007bff;
+  background-color: #ef65d1;
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 10px;
   cursor: pointer;
   font-size: 16px;
+  box-shadow: 0 2px 8px rgba(112, 23, 99, 0.4);
+  margin-top: auto;
 }

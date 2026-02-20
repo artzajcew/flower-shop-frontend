@@ -53,7 +53,7 @@
 
 .search-btn {
   padding: 14px;
-  background-color: #007bff;
+  background-color: #ed7bd1;
   color: white;
   border: none;
   border-radius: 8px;
@@ -64,7 +64,7 @@
 }
 
 .search-btn:hover {
-  background-color: #0056b3;
+  background-color: #cb36cd;
 }
 
 .hint {
