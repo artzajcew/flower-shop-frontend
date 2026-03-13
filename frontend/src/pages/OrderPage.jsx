@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useOrders } from '../context/OrderContext';
 import './OrderPage.css';
@@ -6,18 +6,31 @@ import './OrderPage.css';
 function OrderPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { getOrder } = useOrders();
-  
-  const order = getOrder(parseInt(id));
+  const { getOrderById, loading } = useOrders();
+  const [order, setOrder] = useState(null);
+  const [error, setError] = useState('');
 
-  if (!order) {
-    return (
-      <div className="order-not-found">
-        <h2>Заказ не найден</h2>
-        <button onClick={() => navigate('/')}>На главную</button>
-      </div>
-    );
-  }
+  useEffect(() => {
+    const loadOrder = async () => {
+      try {
+        const data = await getOrderById(parseInt(id));
+        setOrder(data);
+      } catch (err) {
+        setError('Заказ не найден');
+      }
+    };
+
+    loadOrder();
+  }, [id, getOrderById]);
+
+  if (loading) return <div className="loading">Загрузка...</div>;
+  if (error) return (
+    <div className="order-not-found">
+      <h2>{error}</h2>
+      <button onClick={() => navigate('/')}>На главную</button>
+    </div>
+  );
+  if (!order) return null;
 
   const getStatusText = (status) => {
     const statusMap = {
@@ -113,21 +126,23 @@ function OrderPage() {
         </table>
       </div>
 
-      <div className="order-history">
-        <h3>История заказа</h3>
-        <div className="timeline">
-          {order.history.map((event, index) => (
-            <div key={index} className="timeline-item">
-              <div className="timeline-dot" style={{ backgroundColor: getStatusColor(event.status) }}></div>
-              <div className="timeline-content">
-                <div className="timeline-status">{getStatusText(event.status)}</div>
-                <div className="timeline-date">{formatDate(event.date)}</div>
-                {event.comment && <div className="timeline-comment">{event.comment}</div>}
+      {order.history && order.history.length > 0 && (
+        <div className="order-history">
+          <h3>История заказа</h3>
+          <div className="timeline">
+            {order.history.map((event, index) => (
+              <div key={index} className="timeline-item">
+                <div className="timeline-dot" style={{ backgroundColor: getStatusColor(event.status) }}></div>
+                <div className="timeline-content">
+                  <div className="timeline-status">{getStatusText(event.status)}</div>
+                  <div className="timeline-date">{formatDate(event.date)}</div>
+                  {event.comment && <div className="timeline-comment">{event.comment}</div>}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="order-actions">
         <button className="back-btn" onClick={() => navigate('/')}>

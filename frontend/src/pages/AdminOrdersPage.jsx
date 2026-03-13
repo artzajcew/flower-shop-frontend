@@ -1,11 +1,15 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useOrders } from '../context/OrderContext';
 import { useNavigate } from 'react-router-dom';
 import './AdminOrdersPage.css';
 
 function AdminOrdersPage() {
-  const { orders, updateOrderStatus } = useOrders();
+  const { orders, loading, loadOrders, updateOrderStatus } = useOrders();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    loadOrders();
+  }, []);
 
   const getStatusText = (status) => {
     const statusMap = {
@@ -29,10 +33,18 @@ function AdminOrdersPage() {
     return colorMap[status] || '#6c757d';
   };
 
-  const handleStatusChange = (orderId, newStatus) => {
+  const handleStatusChange = async (orderId, newStatus) => {
     const comment = prompt('Комментарий к изменению статуса (необязательно):');
-    updateOrderStatus(orderId, newStatus, comment || '');
+    try {
+      await updateOrderStatus(orderId, newStatus, comment || '');
+    } catch (err) {
+      alert('Ошибка при обновлении статуса');
+    }
   };
+
+  if (loading && orders.length === 0) {
+    return <div className="loading">Загрузка...</div>;
+  }
 
   return (
     <div className="admin-orders">

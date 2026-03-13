@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
-import { flowers } from '../data/flowers';
+import { getProduct } from '../api/api';
 import './ProductPage.css';
 
 function ProductPage() {
@@ -9,17 +9,29 @@ function ProductPage() {
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    const found = flowers.find(f => f.id === parseInt(id));
-    if (found) {
-      setProduct(found);
-    } else {
-      navigate('/catalog');
-    }
+    const loadProduct = async () => {
+      try {
+        setLoading(true);
+        const response = await getProduct(parseInt(id));
+        setProduct(response.data);
+      } catch (err) {
+        setError('Товар не найден');
+        setTimeout(() => navigate('/'), 2000);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProduct();
   }, [id, navigate]);
 
-  if (!product) return <div>Загрузка...</div>;
+  if (loading) return <div className="loading">Загрузка...</div>;
+  if (error) return <div className="error">{error}</div>;
+  if (!product) return null;
 
   return (
     <div className="product-page">
@@ -31,7 +43,7 @@ function ProductPage() {
         </div>
         
         <div className="product-details">
-          <span className="product-category">{product.category}</span>
+          <span className="product-category">{product.category?.name || product.category}</span>
           <h1>{product.name}</h1>
           <p className="product-price">{product.price.toLocaleString()} ₽</p>
           

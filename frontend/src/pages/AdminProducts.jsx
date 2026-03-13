@@ -1,52 +1,57 @@
 import React, { useState, useEffect } from 'react';
-import { flowers as initialFlowers } from '../data/flowers';
+import { getProducts, createProduct, updateProduct, deleteProduct } from '../api/api';
 import './AdminProducts.css';
 
 function AdminProducts() {
   const [products, setProducts] = useState([]);
   const [editingProduct, setEditingProduct] = useState(null);
   const [showForm, setShowForm] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
-    id: null,
     name: '',
     price: '',
-    category: 'Авторский',
+    category_id: '',
     image: '',
-    description: ''
+    description: '',
+    code: '',
+    quantity: 0
   });
 
+  // Загружаем товары
   useEffect(() => {
-    const savedProducts = localStorage.getItem('flowers');
-    if (savedProducts) {
-      setProducts(JSON.parse(savedProducts));
-    } else {
-      setProducts(initialFlowers);
-      localStorage.setItem('flowers', JSON.stringify(initialFlowers));
-    }
+    loadProducts();
   }, []);
 
-  useEffect(() => {
-    if (products.length > 0) {
-      localStorage.setItem('flowers', JSON.stringify(products));
+  const loadProducts = async () => {
+    try {
+      setLoading(true);
+      const response = await getProducts();
+      setProducts(response.data);
+    } catch (err) {
+      console.error('Ошибка загрузки товаров:', err);
+      alert('Ошибка загрузки товаров');
+    } finally {
+      setLoading(false);
     }
-  }, [products]);
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: name === 'price' || name === 'quantity' ? Number(value) : value
     }));
   };
 
   const resetForm = () => {
     setFormData({
-      id: null,
       name: '',
       price: '',
-      category: 'Авторский',
+      category_id: '',
       image: '',
-      description: ''
+      description: '',
+      code: '',
+      quantity: 0
     });
     setEditingProduct(null);
     setShowForm(false);
@@ -54,31 +59,25 @@ function AdminProducts() {
 
   const handleAdd = () => {
     setEditingProduct(null);
-    setFormData({
-      id: null,
-      name: '',
-      price: '',
-      category: 'Авторский',
-      image: '',
-      description: ''
-    });
+    resetForm();
     setShowForm(true);
   };
 
   const handleEdit = (product) => {
     setEditingProduct(product);
     setFormData({
-      id: product.id,
       name: product.name,
       price: product.price,
-      category: product.category,
+      category_id: product.category_id || '',
       image: product.image,
-      description: product.description
+      description: product.description,
+      code: product.code || '',
+      quantity: product.quantity || 0
     });
     setShowForm(true);
   };
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
     
     if (!formData.name || !formData.price || !formData.image || !formData.description) {
@@ -86,52 +85,45 @@ function AdminProducts() {
       return;
     }
 
-    let updatedProducts;
-    
-    if (editingProduct) {
-      updatedProducts = products.map(p => 
-        p.id === editingProduct.id ? { ...formData, price: Number(formData.price) } : p
-      );
-      setProducts(updatedProducts);
-      alert('Товар обновлен!');
-    } else {
-      const newId = Math.max(...products.map(p => p.id), 0) + 1;
-      updatedProducts = [...products, { 
-        ...formData, 
-        id: newId, 
-        price: Number(formData.price) 
-      }];
-      setProducts(updatedProducts);
-      alert('Товар добавлен!');
+    try {
+      if (editingProduct) {
+        await updateProduct(editingProduct.id, formData);
+        alert('Товар обновлен!');
+      } else {
+        await createProduct(formData);
+        alert('Товар добавлен!');
+      }
+      
+      await loadProducts();
+      resetForm();
+    } catch (err) {
+      console.error('Ошибка сохранения:', err);
+      alert('Ошибка при сохранении товара');
     }
-    
-    resetForm();
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm('Вы уверены, что хотите удалить этот товар?')) {
-      const updatedProducts = products.filter(p => p.id !== id);
-      setProducts(updatedProducts);
-      alert('Товар удален!');
+      try {
+        await deleteProduct(id);
+        await loadProducts();
+        alert('Товар удален!');
+      } catch (err) {
+        console.error('Ошибка удаления:', err);
+        alert('Ошибка при удалении товара');
+      }
     }
   };
 
-  const handleReset = () => {
-    if (window.confirm('Сбросить все изменения к исходным данным?')) {
-      setProducts(initialFlowers);
-      localStorage.setItem('flowers', JSON.stringify(initialFlowers));
-      alert('Данные сброшены!');
-    }
-  };
+  if (loading && products.length === 0) {
+    return <div className="loading">Загрузка...</div>;
+  }
 
   return (
     <div className="admin-products">
       <div className="admin-actions">
         <button className="add-btn" onClick={handleAdd}>
           + Добавить новый букет
-        </button>
-        <button className="reset-btn" onClick={handleReset}>
-          ⟲ Сбросить к исходным
         </button>
       </div>
 
@@ -153,6 +145,17 @@ function AdminProducts() {
               </div>
 
               <div className="form-group">
+                <label>Артикул:</label>
+                <input
+                  type="text"
+                  name="code"
+                  value={formData.code}
+                  onChange={handleChange}
+                  placeholder="Например: BQ-001"
+                />
+              </div>
+
+              <div className="form-group">
                 <label>Цена (₽):</label>
                 <input
                   type="number"
@@ -164,16 +167,24 @@ function AdminProducts() {
               </div>
 
               <div className="form-group">
-                <label>Категория:</label>
-                <select
-                  name="category"
-                  value={formData.category}
+                <label>Количество:</label>
+                <input
+                  type="number"
+                  name="quantity"
+                  value={formData.quantity}
                   onChange={handleChange}
-                >
-                  <option value="Авторский">Авторский</option>
-                  <option value="Сборный">Сборный</option>
-                  <option value="Люкс">Люкс</option>
-                </select>
+                />
+              </div>
+
+              <div className="form-group">
+                <label>ID категории:</label>
+                <input
+                  type="number"
+                  name="category_id"
+                  value={formData.category_id}
+                  onChange={handleChange}
+                  placeholder="1, 2, 3..."
+                />
               </div>
 
               <div className="form-group">
@@ -183,10 +194,9 @@ function AdminProducts() {
                   name="image"
                   value={formData.image}
                   onChange={handleChange}
-                  placeholder="например: ../flowers/photo_1.jpg"
+                  placeholder="например: /flowers/photo_1.jpg"
                   required
                 />
-                <small>Путь к картинке в папке flowers</small>
               </div>
 
               <div className="form-group">
@@ -224,6 +234,7 @@ function AdminProducts() {
               <th>Название</th>
               <th>Категория</th>
               <th>Цена</th>
+              <th>В наличии</th>
               <th>Действия</th>
             </tr>
           </thead>
@@ -239,8 +250,9 @@ function AdminProducts() {
                   />
                 </td>
                 <td>{product.name.substring(0, 50)}...</td>
-                <td>{product.category}</td>
+                <td>{product.category?.name || product.category_id}</td>
                 <td>{product.price} ₽</td>
+                <td>{product.quantity > 0 ? 'Да' : 'Нет'}</td>
                 <td className="actions">
                   <button 
                     className="edit-btn"

@@ -5,18 +5,28 @@ import './MyOrdersPage.css';
 
 function MyOrdersPage() {
   const navigate = useNavigate();
-  const { orders, getUserOrders } = useOrders();
+  const { searchUserOrders, loading } = useOrders();
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [userOrders, setUserOrders] = useState([]);
   const [searched, setSearched] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSearch = (e) => {
+  const handleSearch = async (e) => {
     e.preventDefault();
-    if (email || phone) {
-      const found = getUserOrders(email, phone);
-      setUserOrders(found);
+    setError('');
+    
+    if (!email && !phone) {
+      setError('Заполните хотя бы одно поле');
+      return;
+    }
+
+    try {
+      const orders = await searchUserOrders(email || null, phone || null);
+      setUserOrders(orders);
       setSearched(true);
+    } catch (err) {
+      setError('Ошибка при поиске заказов');
     }
   };
 
@@ -66,6 +76,7 @@ function MyOrdersPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="ivan@example.com"
+              disabled={loading}
             />
           </div>
           
@@ -76,17 +87,19 @@ function MyOrdersPage() {
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               placeholder="+7 (999) 123-45-67"
+              disabled={loading}
             />
           </div>
           
-          <button type="submit" className="search-btn">
-            Найти заказы
+          <button type="submit" className="search-btn" disabled={loading}>
+            {loading ? 'Поиск...' : 'Найти заказы'}
           </button>
         </form>
         <p className="hint">* Заполните хотя бы одно поле</p>
+        {error && <div className="error-message">{error}</div>}
       </div>
 
-      {searched && (
+      {searched && !loading && (
         <div className="orders-section">
           {userOrders.length === 0 ? (
             <div className="no-orders">

@@ -1,29 +1,69 @@
 import React, { useState, useEffect } from 'react';
 import ProductCard from '../components/ProductCard/ProductCard.jsx';
+import { getProducts, getCategories } from '../api/api';
 import './CatalogPage.css';
 
 function CatalogPage() {
-  const [selectedCategory, setSelectedCategory] = useState('все');
+  const [selectedCategory, setSelectedCategory] = useState('all');
   const [flowers, setFlowers] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [filters, setFilters] = useState({
+    minPrice: '',
+    maxPrice: '',
+    inStock: false
+  });
 
-  // Загружаем цветы из localStorage
+  // Загружаем категории
   useEffect(() => {
-    const savedFlowers = localStorage.getItem('flowers');
-    if (savedFlowers) {
-      setFlowers(JSON.parse(savedFlowers));
-    }
+    const loadCategories = async () => {
+      try {
+        const response = await getCategories();
+        setCategories(response.data);
+      } catch (err) {
+        console.error('Ошибка загрузки категорий:', err);
+      }
+    };
+    loadCategories();
   }, []);
 
-  const getFilteredFlowers = () => {
-    if (selectedCategory === 'все') {
-      return flowers;
-    }
-    return flowers.filter(flower => 
-      flower.category.toLowerCase() === selectedCategory.toLowerCase()
-    );
-  };
+  // Загружаем товары с фильтрацией
+  useEffect(() => {
+    const loadProducts = async () => {
+      setLoading(true);
+      try {
+        const params = {};
+        
+        if (selectedCategory !== 'all') {
+          const category = categories.find(c => 
+            c.name.toLowerCase() === selectedCategory.toLowerCase()
+          );
+          if (category) params.category_id = category.id;
+        }
+        
+        if (filters.minPrice) params.min_price = filters.minPrice;
+        if (filters.maxPrice) params.max_price = filters.maxPrice;
+        if (filters.inStock) params.in_stock = true;
+        
+        const response = await getProducts(params);
+        setFlowers(response.data);
+      } catch (err) {
+        console.error('Ошибка загрузки товаров:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const filteredFlowers = getFilteredFlowers();
+    loadProducts();
+  }, [selectedCategory, filters, categories]);
+
+  const handleFilterChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFilters(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }));
+  };
 
   return (
     <>
@@ -40,50 +80,72 @@ function CatalogPage() {
 
         <div className="filters">
           <button 
-            className={`filter-btn ${selectedCategory === 'все' ? 'active' : ''}`}
-            onClick={() => setSelectedCategory('все')}
+            className={`filter-btn ${selectedCategory === 'all' ? 'active' : ''}`}
+            onClick={() => setSelectedCategory('all')}
           >
             Все
           </button>
-          <button 
-            className={`filter-btn ${selectedCategory === 'люкс' ? 'active' : ''}`}
-            onClick={() => setSelectedCategory('люкс')}
-          >
-            Люкс
-          </button>
-          <button 
-            className={`filter-btn ${selectedCategory === 'авторский' ? 'active' : ''}`}
-            onClick={() => setSelectedCategory('авторский')}
-          >
-            Авторские
-          </button>
-          <button 
-            className={`filter-btn ${selectedCategory === 'сборный' ? 'active' : ''}`}
-            onClick={() => setSelectedCategory('сборный')}
-          >
-            Сборные
-          </button>
-        </div>
-
-        <div className="products-count">
-          Найдено букетов: {filteredFlowers.length}
-        </div>
-
-        <div className="products-grid">
-          {filteredFlowers.map(flower => (
-            <ProductCard
-              key={flower.id}
-              id={flower.id}
-              name={flower.name}
-              price={flower.price}
-              category={flower.category}
-              image={flower.image}
-              description={flower.description}
-            />
+          {categories.map(category => (
+            <button
+              key={category.id}
+              className={`filter-btn ${selectedCategory === category.name.toLowerCase() ? 'active' : ''}`}
+              onClick={() => setSelectedCategory(category.name.toLowerCase())}
+            >
+              {category.name}
+            </button>
           ))}
         </div>
 
-        {/* Миссия секция */}
+        <div className="advanced-filters">
+          <input
+            type="number"
+            name="minPrice"
+            placeholder="Мин. цена"
+            value={filters.minPrice}
+            onChange={handleFilterChange}
+          />
+          <input
+            type="number"
+            name="maxPrice"
+            placeholder="Макс. цена"
+            value={filters.maxPrice}
+            onChange={handleFilterChange}
+          />
+          <label>
+            <input
+              type="checkbox"
+              name="inStock"
+              checked={filters.inStock}
+              onChange={handleFilterChange}
+            />
+            Только в наличии
+          </label>
+        </div>
+
+        {loading ? (
+          <div className="loading">Загрузка...</div>
+        ) : (
+          <>
+            <div className="products-count">
+              Найдено букетов: {flowers.length}
+            </div>
+
+            <div className="products-grid">
+              {flowers.map(flower => (
+                <ProductCard
+                  key={flower.id}
+                  id={flower.id}
+                  name={flower.name}
+                  price={flower.price}
+                  category={flower.category?.name || flower.category}
+                  image={flower.image}
+                  description={flower.description}
+                />
+              ))}
+            </div>
+          </>
+        )}
+
         <div className="mission-section">
           <div className="mission-column mission-title">
             <h2>OUR MISSION</h2>

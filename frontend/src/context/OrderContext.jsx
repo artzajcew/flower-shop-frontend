@@ -1,84 +1,90 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
+import { 
+  getOrders, 
+  getOrder, 
+  createOrder as apiCreateOrder,
+  updateOrderStatus as apiUpdateStatus,
+  searchOrders as apiSearchOrders
+} from '../api/api';
 
 const OrderContext = createContext();
 
 export function OrderProvider({ children }) {
   const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  // Загружаем заказы из localStorage при запуске
-  useEffect(() => {
-    const savedOrders = localStorage.getItem('orders');
-    if (savedOrders) {
-      setOrders(JSON.parse(savedOrders));
+  // Загружаем заказы (для админа)
+  const loadOrders = async () => {
+    try {
+      setLoading(true);
+      const response = await getOrders();
+      setOrders(response.data);
+    } catch (err) {
+      console.error('Ошибка загрузки заказов:', err);
+    } finally {
+      setLoading(false);
     }
-  }, []);
-
-  // Сохраняем заказы в localStorage при изменении
-  useEffect(() => {
-    localStorage.setItem('orders', JSON.stringify(orders));
-  }, [orders]);
-
-  // Создание нового заказа
-  const createOrder = (orderData) => {
-    const newOrder = {
-      id: Date.now(), // уникальный ID на основе времени
-      ...orderData,
-      status: 'processing', // processing, confirmed, shipped, delivered, cancelled
-      createdAt: new Date().toISOString(),
-      history: [
-        {
-          status: 'processing',
-          date: new Date().toISOString(),
-          comment: 'Заказ создан'
-        }
-      ]
-    };
-    
-    setOrders(prev => [newOrder, ...prev]);
-    return newOrder.id;
   };
 
-  // Обновление статуса заказа
-  const updateOrderStatus = (orderId, newStatus, comment = '') => {
-    setOrders(prev => prev.map(order => {
-      if (order.id === orderId) {
-        const updatedOrder = {
-          ...order,
-          status: newStatus,
-          history: [
-            ...order.history,
-            {
-              status: newStatus,
-              date: new Date().toISOString(),
-              comment
-            }
-          ]
-        };
-        return updatedOrder;
-      }
-      return order;
-    }));
+  // Создание нового заказа
+  const createOrder = async (orderData) => {
+    try {
+      setLoading(true);
+      const response = await apiCreateOrder(orderData);
+      return response.data.id;
+    } catch (err) {
+      console.error('Ошибка создания заказа:', err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Обновление статуса заказа (админ)
+  const updateOrderStatus = async (orderId, newStatus, comment = '') => {
+    try {
+      setLoading(true);
+      await apiUpdateStatus(orderId, newStatus, comment);
+      await loadOrders(); // перезагружаем список
+    } catch (err) {
+      console.error('Ошибка обновления статуса:', err);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Получение заказа по ID
-  const getOrder = (orderId) => {
-    return orders.find(order => order.id === orderId);
+  const getOrderById = async (orderId) => {
+    try {
+      const response = await getOrder(orderId);
+      return response.data;
+    } catch (err) {
+      console.error('Ошибка получения заказа:', err);
+      throw err;
+    }
   };
 
-  // Получение всех заказов пользователя (по email/телефону)
-  const getUserOrders = (email, phone) => {
-    return orders.filter(order => 
-      order.email === email || order.phone === phone
-    );
+  // Поиск заказов пользователя
+  const searchUserOrders = async (email, phone) => {
+    try {
+      const response = await apiSearchOrders(email, phone);
+      return response.data;
+    } catch (err) {
+      console.error('Ошибка поиска заказов:', err);
+      throw err;
+    }
   };
 
   return (
     <OrderContext.Provider value={{
       orders,
+      loading,
+      loadOrders,
       createOrder,
       updateOrderStatus,
-      getOrder,
-      getUserOrders
+      getOrderById,
+      searchUserOrders
     }}>
       {children}
     </OrderContext.Provider>

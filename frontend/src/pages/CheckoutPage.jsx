@@ -6,7 +6,7 @@ import './CheckoutPage.css';
 
 function CheckoutPage() {
   const { cart, totalPrice, clearCart } = useCart();
-  const { createOrder } = useOrders();
+  const { createOrder, loading } = useOrders();
   const navigate = useNavigate();
   
   const [formData, setFormData] = useState({
@@ -15,10 +15,11 @@ function CheckoutPage() {
     phone: '',
     deliveryMethod: 'pickup',
     address: '',
-    paymentMethod: 'card' // card, cash
+    paymentMethod: 'card'
   });
 
   const [errors, setErrors] = useState({});
+  const [submitting, setSubmitting] = useState(false);
 
   if (cart.length === 0) {
     navigate('/cart');
@@ -40,9 +41,7 @@ function CheckoutPage() {
       newErrors.fullName = 'Введите ФИО';
     }
     
-    if (!formData.email.trim()) {
-      newErrors.email = 'Введите email';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+    if (formData.email && !/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Введите корректный email';
     }
     
@@ -59,7 +58,7 @@ function CheckoutPage() {
     return newErrors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     const newErrors = validateForm();
@@ -67,19 +66,30 @@ function CheckoutPage() {
       setErrors(newErrors);
       return;
     }
+
+    setSubmitting(true);
     
-    // Создаем заказ
-    const orderId = createOrder({
-      ...formData,
-      items: cart,
-      total: totalPrice
-    });
-    
-    // Очищаем корзину
-    clearCart();
-    
-    // Переходим на страницу заказа
-    navigate(`/order/${orderId}`);
+    try {
+      // Подготавливаем данные для заказа
+      const orderData = {
+        ...formData,
+        items: cart.map(item => ({
+          id: item.id,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity
+        })),
+        total: totalPrice
+      };
+      
+      const orderId = await createOrder(orderData);
+      clearCart();
+      navigate(`/order/${orderId}`);
+    } catch (err) {
+      alert('Ошибка при создании заказа. Попробуйте позже.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -98,12 +108,13 @@ function CheckoutPage() {
                 onChange={handleChange}
                 placeholder="Иванов Иван Иванович"
                 className={errors.fullName ? 'error' : ''}
+                disabled={submitting}
               />
               {errors.fullName && <span className="error-message">{errors.fullName}</span>}
             </div>
 
             <div className="form-group">
-              <label>Email *</label>
+              <label>Email</label>
               <input
                 type="email"
                 name="email"
@@ -111,6 +122,7 @@ function CheckoutPage() {
                 onChange={handleChange}
                 placeholder="ivan@example.com"
                 className={errors.email ? 'error' : ''}
+                disabled={submitting}
               />
               {errors.email && <span className="error-message">{errors.email}</span>}
             </div>
@@ -124,6 +136,7 @@ function CheckoutPage() {
                 onChange={handleChange}
                 placeholder="+7 (999) 123-45-67"
                 className={errors.phone ? 'error' : ''}
+                disabled={submitting}
               />
               {errors.phone && <span className="error-message">{errors.phone}</span>}
             </div>
@@ -138,6 +151,7 @@ function CheckoutPage() {
                     value="pickup"
                     checked={formData.deliveryMethod === 'pickup'}
                     onChange={handleChange}
+                    disabled={submitting}
                   />
                   Самовывоз (г. Москва, ул. Цветочная, 1)
                 </label>
@@ -148,6 +162,7 @@ function CheckoutPage() {
                     value="delivery"
                     checked={formData.deliveryMethod === 'delivery'}
                     onChange={handleChange}
+                    disabled={submitting}
                   />
                   Доставка
                 </label>
@@ -164,6 +179,7 @@ function CheckoutPage() {
                   onChange={handleChange}
                   placeholder="г. Москва, ул. Пушкина, д. 10, кв. 5"
                   className={errors.address ? 'error' : ''}
+                  disabled={submitting}
                 />
                 {errors.address && <span className="error-message">{errors.address}</span>}
               </div>
@@ -179,6 +195,7 @@ function CheckoutPage() {
                     value="card"
                     checked={formData.paymentMethod === 'card'}
                     onChange={handleChange}
+                    disabled={submitting}
                   />
                   Картой онлайн
                 </label>
@@ -189,14 +206,19 @@ function CheckoutPage() {
                     value="cash"
                     checked={formData.paymentMethod === 'cash'}
                     onChange={handleChange}
+                    disabled={submitting}
                   />
                   Наличными при получении
                 </label>
               </div>
             </div>
 
-            <button type="submit" className="pay-btn">
-              Оплатить {totalPrice} ₽
+            <button 
+              type="submit" 
+              className="pay-btn" 
+              disabled={submitting || loading}
+            >
+              {submitting ? 'Оформление...' : `Оформить заказ ${totalPrice} ₽`}
             </button>
           </form>
         </div>
